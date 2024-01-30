@@ -11,17 +11,17 @@ def energia_potencjalna(q1, q2, r, k):
 
 
 def optymalizacja(q1, q2, q1_x, q1_y, k, temperatura, liczba_iteracji):
-    naj_pozycja = [random.uniform(0, 100), random.uniform(0, 100)]
+    naj_pozycja = [random.uniform(0, 1000), random.uniform(0, 1000)]
     r = math.sqrt((q1_x - naj_pozycja[0]) ** 2 + (q1_y - naj_pozycja[1]) ** 2)
     naj_wynik = energia_potencjalna(q1, q2, r, k)
     obec_pozycja, obec_wynik = naj_pozycja, naj_wynik
 
-    positions = [(obec_pozycja[0], obec_pozycja[1], obec_wynik)]  # Store positions and energies for visualization
+    positions = [(obec_pozycja[0], obec_pozycja[1], obec_wynik)]
 
     for i in range(liczba_iteracji):
         kand_pozycja = [
-            max(0, min(100, obec_pozycja[0] + random.uniform(-0.5, 0.5))),
-            max(0, min(100, obec_pozycja[1] + random.uniform(-0.5, 0.5))),
+            max(0, min(1000, obec_pozycja[0] + random.uniform(-0.5, 0.5))),
+            max(0, min(1000, obec_pozycja[1] + random.uniform(-0.5, 0.5))),
         ]
         kand_r = math.sqrt((q1_x - kand_pozycja[0]) ** 2 + (q1_y - kand_pozycja[1]) ** 2)
         kand_wynik = energia_potencjalna(q1, q2, kand_r, k)
@@ -37,11 +37,13 @@ def optymalizacja(q1, q2, q1_x, q1_y, k, temperatura, liczba_iteracji):
                 obec_pozycja, obec_wynik = kand_pozycja, kand_wynik
 
         positions.append((obec_pozycja[0], obec_pozycja[1], obec_wynik))
-
+    print("Najlepszy wynik: ",naj_wynik)
+    print("Najlepsza pozycja:",naj_pozycja)
     return naj_pozycja, naj_wynik, positions
 
 
 def gui():
+    k = 9*1000000000
     root = tk.Tk()
     root.title("Parametry")
     root.geometry("300x400")
@@ -59,12 +61,12 @@ def gui():
     q2 = tk.Entry(root)
     q2.pack()
 
-    xlab = tk.Label(root, text="Pozycja X [0,100]: ")
+    xlab = tk.Label(root, text="Pozycja X [0,1000]: ")
     xlab.pack()
     x = tk.Entry(root)
     x.pack()
 
-    ylab = tk.Label(root, text="Pozycja Y [0,100]: ")
+    ylab = tk.Label(root, text="Pozycja Y [0,1000]: ")
     ylab.pack()
     y = tk.Entry(root)
     y.pack()
@@ -81,7 +83,7 @@ def gui():
 
     actionButton = tk.Button(root, text="Uruchom", width=10,
                              command=lambda: run_optimization(float(q1.get()), float(q2.get()), float(x.get()),
-                                                              float(y.get()), 8.9875 * 1000000000, float(temp.get()),
+                                                              float(y.get()), k, float(temp.get()),
                                                               int(it.get())))
     actionButton.pack()
 
@@ -91,19 +93,19 @@ def gui():
 def run_optimization(q1, q2, q1_x, q1_y, k, temperatura, liczba_iteracji):
     naj_pozycja, naj_wynik, positions = optymalizacja(q1, q2, q1_x, q1_y, k, temperatura, liczba_iteracji)
 
-    # Unpack positions and energies for visualization
+
     x_positions, y_positions, energies = zip(*positions)
 
     plt.figure()
 
     sc = plt.scatter(x_positions, y_positions, c=energies, cmap='viridis', marker='o')
     plt.colorbar(sc, label='Energia potencjalna')
-    plt.xlim(0,100)
-    plt.ylim(0,100)
+    plt.xlim(0,1000)
+    plt.ylim(0,1000)
     plt.scatter(naj_pozycja[0], naj_pozycja[1], color='red', marker='x', label='Optymalna pozycja')
     plt.scatter(q1_x,q1_y,color='blue',marker='x',label="Pozycja ładunku q1")
-    plt.xlabel('X Position')
-    plt.ylabel('Y Position')
+    plt.xlabel('Oś X')
+    plt.ylabel('Oś Y')
 
     plt.title('Symulacja wyżarzania')
     plt.legend()
